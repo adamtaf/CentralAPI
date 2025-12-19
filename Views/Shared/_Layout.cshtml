@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ProjetWebApplication</title>
+
+    
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ProjetWebApplication.styles.css" asp-append-version="true" />
+    <style>
+        
+        :root {
+            --primary-color: #7B5FCF; 
+            --primary-dark: #5A3FA0;
+            --primary-light: #DAD0F5;
+            --text-color: #333;
+            --footer-color: #6C5490;
+        }
+
+        body {
+            padding-top: 70px;
+            background-color: #F4F2FA;
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--primary-light);
+            box-shadow: 0 2px 10px rgba(123, 95, 207, 0.2);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .nav-link {
+            color: var(--primary-dark) !important;
+            font-weight: 500;
+            transition: color 0.2s ease-in-out;
+        }
+
+            .nav-link:hover {
+                color: var(--primary-color) !important;
+            }
+
+        .login-btn {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-radius: 0.3rem;
+            padding: 0.4rem 0.8rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+
+            .login-btn:hover {
+                background-color: var(--primary-dark);
+                text-decoration: none;
+            }
+
+        main {
+            min-height: 70vh;
+        }
+
+        footer {
+            background-color: var(--primary-light);
+            padding: 1rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--footer-color);
+            box-shadow: 0 -2px 10px rgba(123, 95, 207, 0.1);
+        }
+
+            footer a {
+                color: var(--primary-color);
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    color: var(--primary-dark);
+                }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg fixed-top">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ProjetWebApplication</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container my-4">
+        @RenderBody()
+    </main>
+
+    <footer>
+        &copy; 2025 - ProjetWebApplication | <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,557 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>AllowList / BlackList – Central API Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6f42c1;
+            --accent: #a78bfa;
+            --bg: #f5f5f7;
+            --text: #2c2c2c;
+            --text-muted: #6c6c80;
+            --card-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Dark mode variables (will override via .dark-mode) */
+        .dark-mode {
+            --bg: #1e1e2f;
+            --text: #f5f5f7;
+            --text-muted: #b0b0c3;
+            --primary: #a78bfa;
+            --accent: #6f42c1;
+        }
+
+        /* Base */
+        body {
+            margin: 0;
+            font-family: "Inter", "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* Sidebar (compact, identical to Dashboard) */
+        .sidebar {
+            width: 80px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 0px;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+            z-index: 1000;
+        }
+
+            .sidebar a {
+                color: var(--text-muted);
+                font-size: 1.5rem;
+                margin: 12px 0;
+                width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: 0.3s;
+                position: relative;
+            }
+
+                .sidebar a.active, .sidebar a[aria-current="page"] {
+                    background: var(--accent);
+                    color: #fff;
+                    transform: translateX(5px);
+                }
+
+                .sidebar a:hover {
+                    background: var(--accent);
+                    color: #fff;
+                    transform: translateX(5px);
+                }
+                /* Tooltip for icons */
+                .sidebar a[title]:hover::after {
+                    content: attr(title);
+                    position: absolute;
+                    left: 70px;
+                    background: var(--primary);
+                    color: #fff;
+                    padding: 6px 10px;
+                    border-radius: 6px;
+                    white-space: nowrap;
+                    font-size: 0.85rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    z-index: 10;
+                }
+
+        /* Topbar (aligned with compact sidebar) */
+        .topbar {
+            position: fixed;
+            left: 80px;
+            right: 0;
+            top: 0;
+            height: 60px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 900;
+        }
+
+            .topbar input {
+                border-radius: 12px;
+                border: 1px solid #ddd;
+                padding: 6px 12px;
+                width: 280px;
+                outline: none;
+            }
+
+            .topbar i {
+                font-size: 1.4rem;
+                cursor: pointer;
+            }
+
+        /* Page content */
+        .content {
+            margin-left: 80px;
+            padding: 80px 30px 30px 30px;
+        }
+
+        /* Card style */
+        .card-custom {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+        }
+
+        /* Tab buttons */
+        .nav-tabs .nav-link {
+            border-radius: 10px;
+            color: var(--text);
+        }
+
+            .nav-tabs .nav-link.active {
+                background: var(--accent);
+                color: #fff;
+                border: none;
+            }
+
+        /* Buttons */
+        .btn-violet {
+            background: #d7c9ff;
+            border: none;
+            color: var(--primary);
+            border-radius: 10px;
+        }
+
+            .btn-violet:hover {
+                background: var(--primary);
+                color: #fff;
+            }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        tbody tr {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(6px);
+            transition: background 0.3s, transform 0.3s;
+        }
+
+            tbody tr:hover {
+                background: rgba(255,255,255,0.95);
+                transform: translateY(-2px);
+            }
+
+        /* Small responsive tweaks */
+        @media (max-width: 900px) {
+            .topbar input {
+                width: 160px;
+            }
+
+            .sidebar {
+                width: 64px;
+            }
+
+            .topbar {
+                left: 64px;
+            }
+
+            .content {
+                margin-left: 64px;
+                padding: 80px 16px 16px 16px;
+            }
+        }
+
+        /* Dark mode overrides identical to Dashboard */
+        .dark-mode body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .dark-mode .sidebar {
+            background: rgba(42,40,54,0.95);
+            box-shadow: 2px 0 12px rgba(0,0,0,0.4);
+        }
+
+            .dark-mode .sidebar a {
+                color: var(--text-muted);
+            }
+
+                .dark-mode .sidebar a:hover {
+                    background: var(--primary);
+                    color: #fff;
+                }
+
+        .dark-mode .topbar {
+            background: rgba(42,40,54,0.95);
+        }
+
+        .dark-mode .card-custom {
+            background: rgba(42,40,54,0.7);
+        }
+
+        .dark-mode thead {
+            background: var(--accent);
+        }
+
+        .dark-mode tbody tr {
+            background: rgba(42,40,54,0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="dashboard.html" title="Dashboard"><i class="bi bi-speedometer2"></i></a>
+        <a href="utilisateurs.html" title="Comptes"><i class="bi bi-people"></i></a>
+        <a href="api.html" title="API Gateway"><i class="bi bi-box-arrow-in-right"></i></a>
+        <a href="rateLimiting.html" title="Rate Limiting"><i class="bi bi-sliders"></i></a>
+        <a href="ip-access.html" title="Allow/Blacklist" class="active" aria-current="page"><i class="bi bi-shield-lock"></i></a>
+        <a href="log.html" title="Logs & Audit"><i class="bi bi-journal-text"></i></a>
+        <a href="monitoring.html" title="Monitoring"><i class="bi bi-bar-chart-line"></i></a>
+        <a href="statistiques.html" title="Analytics"><i class="bi bi-graph-up"></i></a>
+        <a href="#" title="Swagger"><i class="bi bi-book"></i></a>
+    </div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="fw-bold fs-5">Allow List / Blacklist</div>
+        <div class="d-flex gap-3 align-items-center">
+            <input type="text" placeholder="Rechercher..." id="globalSearch">
+            <i id="darkModeBtn" class="bi bi-moon-stars-fill" title="Basculer le dark mode"></i>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <h1 class="mb-3">AllowList / BlackList</h1>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="ipTabs">
+            <li class="nav-item">
+                <button class="nav-link active" onclick="showTab('allow')">AllowList</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" onclick="showTab('black')">BlackList</button>
+            </li>
+        </ul>
+
+        <!-- ALLOWLIST SECTION -->
+        <div id="allow-section">
+            <div class="card-custom mb-4">
+                <h4>Ajouter une IP à l’AllowList</h4>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-4">
+                        <input id="allow_ip" type="text" class="form-control" placeholder="Adresse IP">
+                    </div>
+                    <div class="col-md-4">
+                        <input id="allow_desc" type="text" class="form-control" placeholder="Description">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-violet w-100" onclick="addAllow()">Ajouter</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-custom">
+                <h4>Liste AllowList</h4>
+                <div class="table-container mt-3">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width:8%">ID</th>
+                                <th style="width:28%">IP</th>
+                                <th style="width:44%">Description</th>
+                                <th style="width:20%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allow-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLACKLIST SECTION -->
+        <div id="black-section" style="display:none;">
+            <div class="card-custom mb-4">
+                <h4>Ajouter une IP à la BlackList</h4>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-4">
+                        <input id="black_ip" type="text" class="form-control" placeholder="Adresse IP">
+                    </div>
+                    <div class="col-md-4">
+                        <input id="black_reason" type="text" class="form-control" placeholder="Raison">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-violet w-100" onclick="addBlack()">Ajouter</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-custom">
+                <h4>Liste BlackList</h4>
+                <div class="table-container mt-3">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width:8%">ID</th>
+                                <th style="width:28%">IP</th>
+                                <th style="width:44%">Raison</th>
+                                <th style="width:20%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="black-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Tabs UI (preserves same behaviour as your previous allow/black page)
+        function showTab(tab) {
+            document.getElementById("allow-section").style.display = tab === "allow" ? "block" : "none";
+            document.getElementById("black-section").style.display = tab === "black" ? "block" : "none";
+            document.querySelectorAll("#ipTabs .nav-link").forEach(x => x.classList.remove("active"));
+            event.target.classList.add("active");
+        }
+
+        // Dark mode toggle (identical to Dashboard)
+        const darkBtn = document.getElementById("darkModeBtn");
+        darkBtn.onclick = () => {
+            document.body.classList.toggle("dark-mode");
+            darkBtn.classList.toggle("bi-moon-stars-fill");
+            darkBtn.classList.toggle("bi-brightness-high-fill");
+        };
+
+        // Global search: filter both tables by IP / description / reason
+        document.getElementById('globalSearch').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            // filter allow table
+            document.querySelectorAll('#allow-table tr').forEach(tr => {
+                const text = tr.textContent.toLowerCase();
+                tr.style.display = text.includes(q) ? '' : 'none';
+            });
+            // filter black table
+            document.querySelectorAll('#black-table tr').forEach(tr => {
+                const text = tr.textContent.toLowerCase();
+                tr.style.display = text.includes(q) ? '' : 'none';
+            });
+        });
+
+        // API interactions (keep your original endpoints and behavior)
+        async function loadAllow() {
+            try {
+                const res = await fetch("/api/allowlist");
+                if (!res.ok) throw new Error('Erreur fetch AllowList');
+                const data = await res.json();
+                let html = "";
+                data.forEach(x => {
+                    html += `
+                    <tr>
+                        <td>${x.id}</td>
+                        <td>${x.adresseIP}</td>
+                        <td>${x.description || ''}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary me-2" onclick="editAllow(${x.id}, '${escapeHtml(x.adresseIP)}', '${escapeHtml(x.description || '')}')">Modifier</button>
+                            <button class="btn btn-danger btn-sm" onclick="delAllow(${x.id})">Supprimer</button>
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById("allow-table").innerHTML = html;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function addAllow() {
+            const ip = document.getElementById("allow_ip").value.trim();
+            const desc = document.getElementById("allow_desc").value.trim();
+            if (!ip) return alert('Adresse IP requise');
+            try {
+                await fetch("/api/allowlist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ adresseIP: ip, description: desc, utilisateurId: 1 })
+                });
+                document.getElementById("allow_ip").value = '';
+                document.getElementById("allow_desc").value = '';
+                loadAllow();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function delAllow(id) {
+            if (!confirm('Supprimer cette entrée AllowList ?')) return;
+            try {
+                await fetch(`/api/allowlist/${id}`, { method: "DELETE" });
+                loadAllow();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function editAllow(id, ip, desc) {
+            // quick inline edit using prompt for simplicity (remplaçable par modal si tu veux)
+            const newIp = prompt('Modifier IP', ip);
+            if (newIp === null) return;
+            const newDesc = prompt('Modifier description', desc);
+            if (newDesc === null) return;
+            updateAllow(id, newIp.trim(), newDesc.trim());
+        }
+
+        async function updateAllow(id, adresseIP, description) {
+            try {
+                await fetch(`/api/allowlist/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ adresseIP, description })
+                });
+                loadAllow();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Blacklist
+        async function loadBlack() {
+            try {
+                const res = await fetch("/api/blacklist");
+                if (!res.ok) throw new Error('Erreur fetch BlackList');
+                const data = await res.json();
+                let html = "";
+                data.forEach(x => {
+                    html += `
+                    <tr>
+                        <td>${x.id}</td>
+                        <td>${x.adresseIP}</td>
+                        <td>${x.raison || ''}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary me-2" onclick="editBlack(${x.id}, '${escapeHtml(x.adresseIP)}', '${escapeHtml(x.raison || '')}')">Modifier</button>
+                            <button class="btn btn-danger btn-sm" onclick="delBlack(${x.id})">Supprimer</button>
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById("black-table").innerHTML = html;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function addBlack() {
+            const ip = document.getElementById("black_ip").value.trim();
+            const reason = document.getElementById("black_reason").value.trim();
+            if (!ip) return alert('Adresse IP requise');
+            try {
+                await fetch("/api/blacklist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ adresseIP: ip, raison: reason, utilisateurId: 1 })
+                });
+                document.getElementById("black_ip").value = '';
+                document.getElementById("black_reason").value = '';
+                loadBlack();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function delBlack(id) {
+            if (!confirm('Supprimer cette entrée BlackList ?')) return;
+            try {
+                await fetch(`/api/blacklist/${id}`, { method: "DELETE" });
+                loadBlack();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function editBlack(id, ip, reason) {
+            const newIp = prompt('Modifier IP', ip);
+            if (newIp === null) return;
+            const newReason = prompt('Modifier raison', reason);
+            if (newReason === null) return;
+            updateBlack(id, newIp.trim(), newReason.trim());
+        }
+
+        async function updateBlack(id, adresseIP, raison) {
+            try {
+                await fetch(`/api/blacklist/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ adresseIP, raison })
+                });
+                loadBlack();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // utility: escape for prompt/inline editing injection safety in template strings
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
+        }
+
+        // Initial load
+        loadAllow();
+        loadBlack();
+    </script>
+
+</body>
+</html>
